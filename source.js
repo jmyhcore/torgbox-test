@@ -1,4 +1,4 @@
-//no dots in short names 'cause regexp before dictionary call should remove dots.
+//No dots in short names 'cause regexp before dictionary call should remove dots.
 //Also even if we will have undoted short month, no rework will be needed
 //also removed duplicate of May month
 const months = {
@@ -27,16 +27,16 @@ const months = {
   'дек': 12,
 }
 
-let parseDate = (params) => {
-  //prepare data
+const parseDate = (params) => {
+  //Prepare data
   let element = params.src[params.options].replace(/[«»"']/g, "").trim();
   let timezone = element.match(/[+-](\d{2}):(\d{2})$/) //extract timezone
   if (timezone) element = element.split('+')[0]
-  
-  //extract all possible format variants
+
+  //Extract all possible format variants
   const ddmmyyyy = element.match(/(\d{2})[-.\/](\d{2})[-.\/](\d{4})/); //DD[-./]MM[-./]YYYY case
-  const dmonthyyyy = element.match(/(\d{1,2})\s+([а-яё]+)\s+(\d{4})/i); //d month YYYY case
-  const dmonyyyy = element.match(/(\d{1,2})\s+([а-яё]{3})\.?\s+(\d{4})/i);//d mon. YYYY case
+  const dmonthyyyy = element.match(/(\d{1,2})\s+([а-я]+)\s+(\d{4})/i); //d month YYYY case
+  const dmonyyyy = element.match(/(\d{1,2})\s+([а-я]{3})\.?\s+(\d{4})/i);//d mon. YYYY case
 
   const yyyymmdd = element.match(/(\d{4})[-.\/](\d{2})[-.\/](\d{2})/); //YYYY[-./]MM[-./]DD case
 
@@ -45,13 +45,13 @@ let parseDate = (params) => {
   if (yyyymmdd) [fulldate, parsedYear, parsedMonth, parsedDay] = yyyymmdd //special case, year is leading
   else[fulldate, parsedDay, parsedMonth, parsedYear] = ddmmyyyy || dmonthyyyy || dmonyyyy
 
-  //handle shortmonth/fullmonth situations
+  //Handle shortmonth/fullmonth situations
   if (months[parsedMonth]) parsedMonth = months[parsedMonth]
 
   //T means we have some sort of ISO format
-  //todo: regex is better? Sigle letter can appear randomly
+  //Todo: regex is better? Sigle letter can appear randomly
   if (element.indexOf('T') >= 0) {
-    let timeMatch = element.match(/T(\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?)/) //excract TIME (after T)
+    let timeMatch = element.match(/T(\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?)/) //extract TIME (after T)
     timeMatch = timeMatch[1].match(/^(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/) //parse HH:MM:SS(optional).SSS(optional)
 
     parsedHours = timeMatch[1] || 0
@@ -59,19 +59,19 @@ let parseDate = (params) => {
     parsedSeconds = timeMatch[3] || 0
     parsedMillis = timeMatch[4] || 0
   } else {
-    //current element is not ISO like
-    //extract time if exists
+    //Current element is not ISO like
+    //Extract time if exists
     const timeMatch = element.match(/(\d{1,2}):(\d{2})/);
     parsedHours = timeMatch[1] || 0
     parsedMinutes = timeMatch[2] || 0
-    //no seconds here so fill with 0's
+    //No seconds here so fill with 0's
     parsedSeconds = 0
     parsedMillis = 0
   }
-  
+
   let result = new Date(Date.UTC(parsedYear, parsedMonth - 1, parsedDay, parsedHours, parsedMinutes, parsedSeconds, parsedMillis)).toISOString()
 
-  //handle timezone. Remove 'Z' from end, add +HH:MM
+  //Handle timezone. Remove 'Z' from end, add +HH:MM
   if (timezone) result = result.split('Z')[0] + timezone[0]
   return result
 }
