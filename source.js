@@ -29,18 +29,18 @@ const months = {
 
 const parseDate = (params) => {
   //Prepare data
-  let element = params.src[params.options].replace(/[«»"']/g, "").trim();
+  let element = params.src[params.options].replace(/[«»"']/g, "").trim()
   let timezone = element.match(/[+-](\d{2}):(\d{2})$/) //extract timezone
   if (timezone) element = element.split('+')[0]
 
   //Extract all possible format variants
-  const ddmmyyyy = element.match(/(\d{2})[-.\/](\d{2})[-.\/](\d{4})/); //DD[-./]MM[-./]YYYY case
-  const dmonthyyyy = element.match(/(\d{1,2})\s+([а-я]+)\s+(\d{4})/i); //d month YYYY case
-  const dmonyyyy = element.match(/(\d{1,2})\s+([а-я]{3})\.?\s+(\d{4})/i);//d mon. YYYY case
+  const ddmmyyyy = element.match(/(\d{2})[-.\/](\d{2})[-.\/](\d{4})/) //DD[-./]MM[-./]YYYY case
+  const dmonthyyyy = element.match(/(\d{1,2})\s+([а-я]+)\s+(\d{4})/i) //d month YYYY case
+  const dmonyyyy = element.match(/(\d{1,2})\s+([а-я]{3})\.?\s+(\d{4})/i)//d mon. YYYY case
 
-  const yyyymmdd = element.match(/(\d{4})[-.\/](\d{2})[-.\/](\d{2})/); //YYYY[-./]MM[-./]DD case
+  const yyyymmdd = element.match(/(\d{4})[-.\/](\d{2})[-.\/](\d{2})/) //YYYY[-./]MM[-./]DD case
 
-  let fulldate = null, parsedDay = null, parsedMonth = null, parsedYear = null, parsedHours = null, parsedMinutes = null, parsedSeconds = null, parsedMillis = null
+  let fulldate = null, parsedDay = 0, parsedMonth = 0, parsedYear = 0, parsedHours = 0, parsedMinutes = 0, parsedSeconds = 0, parsedMillis = 0
 
   if (yyyymmdd) [fulldate, parsedYear, parsedMonth, parsedDay] = yyyymmdd //special case, year is leading
   else[fulldate, parsedDay, parsedMonth, parsedYear] = ddmmyyyy || dmonthyyyy || dmonyyyy
@@ -61,9 +61,11 @@ const parseDate = (params) => {
   } else {
     //Current element is not ISO like
     //Extract time if exists
-    const timeMatch = element.match(/(\d{1,2}):(\d{2})/);
-    parsedHours = timeMatch[1] || 0
-    parsedMinutes = timeMatch[2] || 0
+    const timeMatch = element.match(/(\d{1,2}):(\d{2})/)
+    if (timeMatch) {
+      parsedHours = timeMatch[1] || 0
+      parsedMinutes = timeMatch[2] || 0
+    }
     //No seconds here so fill with 0's
     parsedSeconds = 0
     parsedMillis = 0
